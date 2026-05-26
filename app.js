@@ -272,7 +272,8 @@ function daysUntil(dateStr) {
     return Math.round((d - today) / (1000 * 60 * 60 * 24));
 }
 
-function deadlineLabel(days) {
+function deadlineLabel(days, status) {
+    if (status === 'entregue') return { text: '✓ Entregue', cls: 'ok' };
     if (days === null) return { text: 'Sem prazo', cls: '' };
     if (days < 0) return { text: `${Math.abs(days)}d atrasado`, cls: 'urgente' };
     if (days === 0) return { text: 'Entrega hoje!', cls: 'urgente' };
@@ -335,7 +336,7 @@ function renderProjects() {
     list.innerHTML = visible.map(p => {
         const done = p.tasks.filter(Boolean).length;
         const pct = Math.round(done / TASKS.length * 100);
-        const dl = deadlineLabel(daysUntil(p.prazo));
+        const dl = deadlineLabel(daysUntil(p.prazo), p.status);
         const statusLabels = {
             pendente: 'Pendente',
             editando: 'Editando',

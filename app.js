@@ -247,6 +247,11 @@ function scrollToProjects(event) {
     }
 }
 
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('active');
+}
+
 async function toggleTask(id, i) {
     alert('⚠️ Modo somente leitura\n\nPara marcar etapas, edite direto na planilha do Google Sheets (coloque TRUE ou FALSE) e depois clique em "Sincronizar".');
 }

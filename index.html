@@ -900,6 +900,7 @@
             .sidebar {
                 transform: translateX(-100%);
                 transition: transform 0.3s;
+                z-index: 1000;
             }
 
             .sidebar.active {
@@ -917,6 +918,10 @@
 
             .search-box input {
                 width: 100%;
+            }
+
+            .mobile-menu-btn {
+                display: flex !important;
             }
         }
     </style>
@@ -973,6 +978,9 @@
         <main class="main-content">
             <header class="header">
                 <div class="welcome">
+                    <button class="icon-btn mobile-menu-btn" onclick="toggleSidebar()" style="display: none;">
+                        <i class="ti ti-menu-2"></i>
+                    </button>
                     <div class="avatar">FW</div>
                     <div class="welcome-text">
                         <h1>Bem-vindo de volta!</h1>
@@ -984,6 +992,9 @@
                         <i class="ti ti-search"></i>
                         <input type="text" placeholder="Buscar projetos..." id="search-input" oninput="handleSearch(this.value)">
                     </div>
+                    <button class="icon-btn" onclick="manualSync()" title="Sincronizar">
+                        <i class="ti ti-refresh"></i>
+                    </button>
                     <button class="icon-btn">
                         <i class="ti ti-bell"></i>
                     </button>

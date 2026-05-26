@@ -397,6 +397,25 @@ function render() {
     updateMetrics();
     renderProjects();
     renderStatusChart();
+    updateProductivityChart();
+}
+
+function updateProductivityChart() {
+    if (!window.productivityChart) return;
+    
+    // Contar projetos entregues por mês
+    const monthCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    
+    projects.forEach(p => {
+        if (p.status === 'entregue' && p.prazo) {
+            const date = new Date(p.prazo + 'T00:00:00');
+            const month = date.getMonth();
+            monthCounts[month]++;
+        }
+    });
+    
+    window.productivityChart.data.datasets[0].data = monthCounts;
+    window.productivityChart.update();
 }
 
 // ============================================
@@ -404,19 +423,19 @@ function render() {
 // ============================================
 
 function initCharts() {
-    // Productivity Chart
+    // Productivity Chart - usar dados reais dos projetos
     const ctx = document.getElementById('productivityChart').getContext('2d');
     const gradient = ctx.createLinearGradient(0, 0, 0, 280);
     gradient.addColorStop(0, 'rgba(139, 92, 246, 0.3)');
     gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
 
-    new Chart(ctx, {
+    window.productivityChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
             datasets: [{
                 label: 'Projetos concluídos',
-                data: [4, 6, 5, 8, 7, 9, 11, 8, 10, 12, 9, 5],
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 borderColor: '#8b5cf6',
                 backgroundColor: gradient,
                 borderWidth: 2,
@@ -452,8 +471,9 @@ function initCharts() {
                 },
                 y: {
                     grid: { color: 'rgba(148, 163, 184, 0.1)', drawBorder: false },
-                    ticks: { color: '#64748b', stepSize: 4 },
-                    border: { display: false }
+                    ticks: { color: '#64748b', stepSize: 1 },
+                    border: { display: false },
+                    beginAtZero: true
                 }
             }
         }

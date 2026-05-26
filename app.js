@@ -314,6 +314,13 @@ function renderProjects() {
             return nome.includes(searchQuery) || status.includes(searchQuery);
         });
     }
+    
+    // Ordenar por data do evento (mais próximos primeiro)
+    visible = visible.sort((a, b) => {
+        if (!a.data) return 1;
+        if (!b.data) return -1;
+        return new Date(a.data) - new Date(b.data);
+    });
 
     if (!visible.length) {
         list.innerHTML = `
@@ -339,7 +346,7 @@ function renderProjects() {
             `<span class="task-chip${p.tasks[i] ? ' done' : ''}" onclick="toggleTask('${p.id}', ${i})">${t}</span>`
         ).join('');
 
-        const dataFormatada = p.data ? new Date(p.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
+        const dataFormatada = p.data ? new Date(p.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
 
         return `
             <div class="project-card">

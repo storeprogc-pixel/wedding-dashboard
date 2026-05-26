@@ -358,7 +358,7 @@ function renderProjects() {
                             ${p.nome}
                         </div>
                         <div class="project-meta">
-                            ${dataFormatada ? `<span class="project-date">Casamento: ${dataFormatada}</span>` : ''}
+                            ${dataFormatada ? `<span class="project-date">Evento: ${dataFormatada}</span>` : ''}
                             ${p.prazo ? `<span class="deadline ${dl.cls}"><i class="ti ti-calendar"></i>${dl.text}</span>` : ''}
                         </div>
                     </div>

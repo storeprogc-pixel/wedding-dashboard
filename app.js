@@ -18,6 +18,7 @@ const TASKS = [
 // Estado global
 let projects = [];
 let filter = 'todos';
+let searchQuery = '';
 let syncInProgress = false;
 let autoSyncInterval = null;
 
@@ -233,6 +234,11 @@ function setFilter(f, btn) {
     render();
 }
 
+function handleSearch(query) {
+    searchQuery = query.toLowerCase().trim();
+    render();
+}
+
 async function toggleTask(id, i) {
     alert('⚠️ Modo somente leitura\n\nPara marcar etapas, edite direto na planilha do Google Sheets (coloque TRUE ou FALSE) e depois clique em "Sincronizar".');
 }
@@ -285,7 +291,16 @@ function updateMetrics() {
 
 function renderProjects() {
     const list = document.getElementById('projects-list');
-    const visible = filter === 'todos' ? projects : projects.filter(p => p.status === filter);
+    let visible = filter === 'todos' ? projects : projects.filter(p => p.status === filter);
+    
+    // Aplicar busca
+    if (searchQuery) {
+        visible = visible.filter(p => {
+            const nome = p.nome.toLowerCase();
+            const status = p.status.toLowerCase();
+            return nome.includes(searchQuery) || status.includes(searchQuery);
+        });
+    }
 
     if (!visible.length) {
         list.innerHTML = `

@@ -239,6 +239,14 @@ function handleSearch(query) {
     render();
 }
 
+function scrollToProjects(event) {
+    event.preventDefault();
+    const section = document.getElementById('projects-section');
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
 async function toggleTask(id, i) {
     alert('⚠️ Modo somente leitura\n\nPara marcar etapas, edite direto na planilha do Google Sheets (coloque TRUE ou FALSE) e depois clique em "Sincronizar".');
 }

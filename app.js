@@ -650,16 +650,24 @@ function renderStatusChart() {
 // SETTINGS
 // ============================================
 
-function openSettingsModal() {
+function openSettingsModal(event) {
+    if (event) event.preventDefault();
     const modal = document.getElementById('settings-modal');
+    if (!modal) {
+        console.error('Modal não encontrado');
+        return;
+    }
     document.getElementById('sheet-id').value = config.sheetId;
     document.getElementById('api-key').value = config.apiKey;
     modal.classList.add('active');
+    modal.style.display = 'flex';
 }
 
 function closeSettingsModal() {
     const modal = document.getElementById('settings-modal');
+    if (!modal) return;
     modal.classList.remove('active');
+    modal.style.display = 'none';
 }
 
 function saveSettings() {

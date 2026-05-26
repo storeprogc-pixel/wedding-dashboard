@@ -89,97 +89,7 @@ class GoogleSheetsSync {
             }));
     }
 
-    async writeProject(project) {
-        if (!this.sheetId || !this.apiKey) {
-            throw new Error('Configuração incompleta');
-        }
 
-        const row = this.projectToRow(project);
-        const range = `Projetos!A${project.rowNumber || 'append'}:P${project.rowNumber || ''}`;
-        
-        // Para adicionar novo projeto, usar append
-        if (!project.rowNumber) {
-            return this.appendProject(project);
-        }
-
-        // Para atualizar projeto existente
-        const url = `${this.baseUrl}/${this.sheetId}/values/${range}?valueInputOption=RAW&key=${this.apiKey}`;
-
-        try {
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    values: [row]
-                })
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error.message || 'Erro ao atualizar planilha');
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Erro ao escrever projeto:', error);
-            throw error;
-        }
-    }
-
-    async appendProject(project) {
-        const row = this.projectToRow(project);
-        const range = 'Projetos!A:P';
-        const url = `${this.baseUrl}/${this.sheetId}/values/${range}:append?valueInputOption=RAW&key=${this.apiKey}`;
-
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    values: [row]
-                })
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error.message || 'Erro ao adicionar projeto');
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Erro ao adicionar projeto:', error);
-            throw error;
-        }
-    }
-
-    async deleteProject(rowNumber) {
-        // Google Sheets API não tem endpoint direto para deletar linhas
-        // Alternativa: limpar a linha
-        const range = `Projetos!A${rowNumber}:P${rowNumber}`;
-        const url = `${this.baseUrl}/${this.sheetId}/values/${range}:clear?key=${this.apiKey}`;
-
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Erro ao deletar projeto');
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Erro ao deletar projeto:', error);
-            throw error;
-        }
-    }
 
     projectToRow(project) {
         return [
@@ -249,41 +159,6 @@ class SyncManager {
         }
     }
 
-    async pushToSheets(project) {
-        if (!this.sheetsAPI) {
-            // Se não está configurado, salva localmente
-            this.pendingChanges.push(project);
-            return;
-        }
-
-        this.updateSyncStatus('syncing', 'Salvando...');
-
-        try {
-            await this.sheetsAPI.writeProject(project);
-            this.lastSyncTime = new Date();
-            this.updateSyncStatus('connected', 'Salvo');
-            this.updateLastSyncTime();
-        } catch (error) {
-            console.error('Erro ao salvar no Sheets:', error);
-            this.pendingChanges.push(project);
-            this.updateSyncStatus('error', 'Erro ao salvar');
-        }
-    }
-
-    async deleteFromSheets(project) {
-        if (!this.sheetsAPI || !project.rowNumber) {
-            return;
-        }
-
-        try {
-            await this.sheetsAPI.deleteProject(project.rowNumber);
-            this.lastSyncTime = new Date();
-            this.updateLastSyncTime();
-        } catch (error) {
-            console.error('Erro ao deletar do Sheets:', error);
-        }
-    }
-
     updateSyncStatus(type, message) {
         const indicator = document.getElementById('sync-indicator');
         const statusText = document.getElementById('sync-status-text');
@@ -348,37 +223,7 @@ function toggleAddForm() {
 }
 
 async function addProject() {
-    const nome = document.getElementById('inp-nome').value.trim();
-    const data = document.getElementById('inp-data').value;
-    const prazo = document.getElementById('inp-prazo').value;
-    const status = document.getElementById('inp-status').value;
-
-    if (!nome) {
-        alert('Por favor, insira o nome do casal');
-        return;
-    }
-
-    const newProject = {
-        id: `project-${Date.now()}`,
-        nome,
-        data,
-        prazo,
-        status,
-        tasks: Array(TASKS.length).fill(false)
-    };
-
-    projects.unshift(newProject);
-    
-    // Sincroniza com Google Sheets
-    await syncManager.pushToSheets(newProject);
-    
-    render();
-
-    // Limpa form
-    document.getElementById('inp-nome').value = '';
-    document.getElementById('inp-data').value = '';
-    document.getElementById('inp-prazo').value = '';
-    toggleAddForm();
+    alert('⚠️ Modo somente leitura\n\nPara adicionar projetos, edite direto na planilha do Google Sheets e depois clique em "Sincronizar".');
 }
 
 function setFilter(f, btn) {
@@ -389,40 +234,15 @@ function setFilter(f, btn) {
 }
 
 async function toggleTask(id, i) {
-    const p = projects.find(x => x.id === id);
-    if (!p) return;
-
-    p.tasks[i] = !p.tasks[i];
-    
-    if (p.tasks.every(t => t) && p.status !== 'entregue') {
-        p.status = 'revisao';
-    }
-
-    await syncManager.pushToSheets(p);
-    render();
+    alert('⚠️ Modo somente leitura\n\nPara marcar etapas, edite direto na planilha do Google Sheets (coloque TRUE ou FALSE) e depois clique em "Sincronizar".');
 }
 
 async function setStatus(id, val) {
-    const p = projects.find(x => x.id === id);
-    if (!p) return;
-
-    p.status = val;
-    await syncManager.pushToSheets(p);
-    render();
+    alert('⚠️ Modo somente leitura\n\nPara alterar o status, edite direto na planilha do Google Sheets e depois clique em "Sincronizar".');
 }
 
 async function deleteProject(id) {
-    if (!confirm('Tem certeza que deseja remover este projeto?')) {
-        return;
-    }
-
-    const p = projects.find(x => x.id === id);
-    if (p) {
-        await syncManager.deleteFromSheets(p);
-    }
-
-    projects = projects.filter(x => x.id !== id);
-    render();
+    alert('⚠️ Modo somente leitura\n\nPara remover projetos, delete a linha na planilha do Google Sheets e depois clique em "Sincronizar".');
 }
 
 function daysUntil(dateStr) {
